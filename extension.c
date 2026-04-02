@@ -1,7 +1,17 @@
 #include "extension.h"
-void initScreen(Screen *s){
+void initScreen(Screen *s, int x, int y, int w, int h) {
+    // Initialisiere die dynamische Liste der Elemente
     s->elements = NULL;
-    s->count = 0;
+    s->count = 0;      
+    
+    // Setze die Container-Eigenschaften
+    s->posX = x;
+    s->posY = y;
+    s->w = w;
+    s->h = h;
+    
+    // Standardmäßig auf sichtbar setzen (1 = true)
+    s->visible = 1;
 }
 void addElement(Screen *s, UIElement *e) {
     s->elements = realloc(s->elements, (s->count + 1) * sizeof(UIElement*));

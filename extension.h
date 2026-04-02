@@ -63,10 +63,13 @@ typedef struct {
 typedef struct {
     UIElement **elements;
     int count;
+    unsigned char visible;
+    int posX, posY;
+    int w, h;
 } Screen;
 void drawScreen(Screen *s, SDL_Renderer *renderer);
 void addElement(Screen *s, UIElement *e);
-void initScreen(Screen *s);
+void initScreen(Screen *s, int x, int y, int w, int h);
 
 Button* createButton(int x, int y, int w, int h,Color on, Color off,void (*fn)(void*), void *param);
 void drawButton(UIElement *e, SDL_Renderer *renderer);
