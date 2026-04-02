@@ -34,41 +34,62 @@ void freeScreen(Screen *s) {
     s->count = 0;
 }
 
+void handleMouseDown(Screen *s, int mouseX, int mouseY) {
+    if (!s->visible) return;
+
+    // Prüfen, ob der Klick überhaupt innerhalb des Screens liegt
+    if (mouseX >= s->posX && mouseX <= s->posX + s->w &&
+        mouseY >= s->posY && mouseY <= s->posY + s->h) {
+        
+        // WICHTIG: Wir ziehen die Screen-Position von der Maus ab.
+        // Ab hier "denken" alle Elemente, der Screen-Ursprung sei 0,0.
+        int localX = mouseX - s->posX;
+        int localY = mouseY - s->posY;
+
+        for (int i = 0; i < s->count; i++) {
+            UIElement *e = s->elements[i];
+            if (!e->flags.visible) continue;
+            
+            e->flags.dragging = 1;         
+            if (e->click) {
+                e->click(e, localX, localY); // Nutzt lokale Koordinaten
+            }
+        }
+    }
+}
+
 void handleMouseUp(Screen *s, int mouseX, int mouseY) {
+    // Auch hier: Transformieren zu lokalen Koordinaten
+    int localX = mouseX - s->posX;
+    int localY = mouseY - s->posY;
+
     for (int i = 0; i < s->count; i++) {
         UIElement *e = s->elements[i];
         e->flags.dragging = 0;         
         if (!e->flags.visible) continue;
         if (e->click) {
-            e->click(e, mouseX, mouseY);
-        }
-    }
-}
-
-void handleMouseDown(Screen *s, int mouseX, int mouseY) {
-    for (int i = 0; i < s->count; i++) {
-        UIElement *e = s->elements[i];
-
-        if (!e->flags.visible) continue;
-        e->flags.dragging = 1;         
-        if (e->click) {
-            e->click(e, mouseX, mouseY);
+            e->click(e, localX, localY);
         }
     }
 }
 
 void handleMouseMove(Screen *s, int mouseX, int mouseY) {
+    if (!s->visible) return;
+
+    int localX = mouseX - s->posX;
+    int localY = mouseY - s->posY;
+
     for (int i = 0; i < s->count; i++) {
         UIElement *e = s->elements[i];
-
         if (!e->flags.visible && !e->flags.dragging) continue;        
         if (e->move) {
-            e->move(e, mouseX, mouseY);
+            e->move(e, localX, localY);
         }
     }
 }
 
 void drawScreen(Screen *s, SDL_Renderer *renderer) {
+    if (!s->visible) return;
     for (int i = 0; i < s->count; i++) {
         UIElement *e = s->elements[i];
 
